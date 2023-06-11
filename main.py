@@ -11,7 +11,7 @@ from prediction.plastik import klasifikasiPlastik, plastik
 app = Flask(__name__)
 
 #inisialisasi klien penyimpanan Google Cloud
-#service_account = 'artful-guru-386801-9390336d684c.json'
+#service_account = '...json'
 #client = storage.Client.from_service_account_json(service_account)
 
 #endpoint index/homepage
