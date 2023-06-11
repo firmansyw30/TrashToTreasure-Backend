@@ -6,14 +6,14 @@ import tensorflow as tf
 from flask import Flask, request, jsonify
 
 # Inisialisasi klien penyimpanan Google Cloud
-service_account = 'artful-guru-386801-9390336d684c.json'
+service_account = 'nama-file-services-account.json'
 client = storage.Client.from_service_account_json(service_account)
 
 # Inisialisasi flask
 app = Flask(__name__)
 
 #load model dari file model
-bucket_name = 't2t-bucket'
+bucket_name = 'nama-bucket'
 model_kain_path = 'models/model_kain.h5'
 bucket = client.get_bucket(bucket_name)
 blob = bucket.blob(model_kain_path)
