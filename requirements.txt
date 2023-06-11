@@ -1,0 +1,7 @@
+flask
+matplotlib
+tensorflow
+google-cloud-storage
+gunicorn
+
+#jalankan dengan perintah "pip install -r requirements.txt"

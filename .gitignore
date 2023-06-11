@@ -1,0 +1,5 @@
+artful-guru-386801-9390336d684c.json
+__pycache__/
+.venv/
+Dockerfile
+.dockerignore
