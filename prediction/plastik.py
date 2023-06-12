@@ -8,7 +8,7 @@ from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
 
 # Inisialisasi klien penyimpanan Google Cloud
-service_account = 'service-account-storage-admin.json'
+service_account = 'artful-guru-386801-9390336d684c.json'
 client = storage.Client.from_service_account_json(service_account)
 
 # Inisialisasi flask
@@ -106,9 +106,9 @@ def plastik():
     bucket = client.get_bucket(bucket_name)
     image_path = 'uploaded-img/plastik/' + image.filename
     blob = bucket.blob(image_path)
-    blob.upload_from_filename(temp_image)
+    blob.upload_from_filename(temp_image_path)
     # Hapus gambar sementara dari folder lokal
-    os.remove(temp_image)
+    os.remove(temp_image_path)
     # Dapatkan URL file gambar di Google Cloud Storage
     image_uri = f"gs://{bucket_name}/{image_path}"
 
