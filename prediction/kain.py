@@ -1,19 +1,21 @@
 from google.cloud import storage
 import os
+import tempfile
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import tensorflow as tf
 from flask import Flask, request, jsonify
+from werkzeug.utils import secure_filename
 
 # Inisialisasi klien penyimpanan Google Cloud
-service_account = 'nama-file-services-account.json'
+service_account = 'artful-guru-386801-9390336d684c.json'
 client = storage.Client.from_service_account_json(service_account)
 
 # Inisialisasi flask
 app = Flask(__name__)
 
 #load model dari file model
-bucket_name = 'nama-bucket'
+bucket_name = 't2t-bucket'
 model_kain_path = 'models/model_kain.h5'
 bucket = client.get_bucket(bucket_name)
 blob = bucket.blob(model_kain_path)
@@ -74,16 +76,34 @@ def kain():
 
     #meminta request gambar ke body dengan method form data nantinya di postman
     image = request.files['image']
+    # Mendefinisikan path folder 'uploaded-img'
+    uploaded_img_folder = 'content/kain'
 
-    #simpan gambar ke direktori sementara
-    temp_image_path = 'content/temp_image.jpg'
+    # Membuat folder 'uploaded-img' jika belum ada
+    if not os.path.exists(uploaded_img_folder):
+        os.makedirs(uploaded_img_folder)
+
+    # Simpan gambar ke folder lokal dengan nama sementara
+    temp_image_path = os.path.join(uploaded_img_folder, secure_filename(image.filename))
     image.save(temp_image_path)
+    
+    # Simpan gambar ke Google Cloud Storage
+    bucket = client.get_bucket(bucket_name)
+    image_path = 'uploaded-img/kain/' + image.filename
+    blob = bucket.blob(image_path)
+    blob.upload_from_filename(temp_image_path)
 
+    # Dapatkan URL file gambar di Google Cloud Storage
+    image_uri = f"gs://{bucket_name}/{image_path}"
     #klasifikasikan gambar, berikan deskripsi dan rekomendasi
-    answer, description, folder_path = klasifikasiKain(temp_image_path)
-
-    #hapus file gambar sementara
+    answer, description, folder_path = klasifikasiKain(image_uri)
+    # Hapus file gambar sementara
+    image.close()
+    blob.delete()
+    # Hapus gambar sementara dari folder lokal
     os.remove(temp_image_path)
+    #hapus file gambar sementara
+    #os.remove(temp_image_path)
     #remove model setelah digunakan
     #os.remove(model_kain_path_local)
     # Dapatkan objek bucket
