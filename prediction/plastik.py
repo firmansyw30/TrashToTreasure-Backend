@@ -3,17 +3,19 @@ import os
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import tensorflow as tf
+import tempfile
 from flask import Flask, request, jsonify
+from werkzeug.utils import secure_filename
 
 # Inisialisasi klien penyimpanan Google Cloud
-service_account = 'nama-file-services-account.json'
+service_account = 'service-account-storage-admin.json'
 client = storage.Client.from_service_account_json(service_account)
 
 # Inisialisasi flask
 app = Flask(__name__)
 
 #load model dari file model
-bucket_name = 'nama-bucket'
+bucket_name = 't2t-bucket'
 model_plastik_path = 'models/model_plastik.h5'
 bucket = client.get_bucket(bucket_name)
 blob = bucket.blob(model_plastik_path)
@@ -89,16 +91,35 @@ def plastik():
 
     #meminta request gambar ke body dengan method form data nantinya di postman
     image = request.files['image']
+    # Mendefinisikan path folder 'uploaded-img'
+    uploaded_img_folder = 'content/plastik'
 
-    #simpan gambar ke direktori sementara
-    temp_image_path = 'content/temp_image.jpg'
+    # Membuat folder 'uploaded-img' jika belum ada
+    if not os.path.exists(uploaded_img_folder):
+        os.makedirs(uploaded_img_folder)
+
+    # Simpan gambar ke folder lokal dengan nama sementara
+    temp_image_path = os.path.join(uploaded_img_folder, secure_filename(image.filename))
     image.save(temp_image_path)
+    
+    # Simpan gambar ke Google Cloud Storage
+    bucket = client.get_bucket(bucket_name)
+    image_path = 'uploaded-img/plastik/' + image.filename
+    blob = bucket.blob(image_path)
+    blob.upload_from_filename(temp_image)
+    # Hapus gambar sementara dari folder lokal
+    os.remove(temp_image)
+    # Dapatkan URL file gambar di Google Cloud Storage
+    image_uri = f"gs://{bucket_name}/{image_path}"
 
-    #klasifikasikan gambar, berikan deskripsi dan rekomendasi
-    answer, description, folder_path = klasifikasiPlastik(temp_image_path)
-
+    # Klasifikasikan gambar, berikan deskripsi dan rekomendasi
+    answer, description, folder_path = klasifikasiPlastik(image_uri)
+    # Hapus file gambar sementara
+    image.close()
+    blob.delete()
+    
     #hapus file gambar sementara
-    os.remove(temp_image_path)
+    #os.remove(temp_image_path)
     #remove model setelah digunakan
     #os.remove(model_plastik_path_local)
     # Dapatkan objek bucket
