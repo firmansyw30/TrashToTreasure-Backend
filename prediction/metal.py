@@ -8,7 +8,7 @@ from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
 
 # Inisialisasi klien penyimpanan Google Cloud
-service_account = 'service-account-storage-admin.json'
+service_account = 'artful-guru-386801-9390336d684c.json'
 client = storage.Client.from_service_account_json(service_account)
 
 # Inisialisasi flask
