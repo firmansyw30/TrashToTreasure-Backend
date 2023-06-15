@@ -8,6 +8,7 @@ import tensorflow as tf
 from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
 from PIL import Image
+from urllib.parse import quote
 
 # Inisialisasi klien penyimpanan Google Cloud
 service_account = 'credential/artful-guru-386801-9390336d684c.json'
@@ -50,7 +51,7 @@ def klasifikasiKain(image_path):
         \tPenting untuk membuang sampah kain dengan benar, baik dengan mendaur ulang atau membuangnya ke tempat sampah yang sesuai. 
         \tMengurangi pemborosan kain dan memperpanjang siklus hidup kain dapat membantu mengurangi dampak negatif pada lingkungan dan mengurangi 
         \tpenggunaan sumber daya alam yang berharga.\n'''
-        folder_path = 'Recomendation/Kain/Kain'  # Path folder tempat gambar aluminium disimpan
+        folder_path = 'Recomendation/Kain'  # Path folder tempat gambar aluminium disimpan
     elif predicted_class == 1:
         answer = "Organik."
         description = '''Sampah organik adalah jenis sampah yang terdiri dari bahan-bahan yang berasal dari sisa-sisa organisme hidup, seperti sisa makanan, 
@@ -64,7 +65,7 @@ def klasifikasiKain(image_path):
         \tkesuburan tanah di kebun atau taman.\n
         \tPengelolaan yang tepat terhadap sampah organik dapat membantu mengurangi jumlah sampah yang dikirim ke tempat pembuangan akhir, mengurangi emisi 
         \tgas rumah kaca, dan menghasilkan sumber daya yang bernilai dari bahan organik yang terdekomposisi.\n'''
-        folder_path = 'Recomendation/Kain/Organik'  # Path folder tempat gambar kaleng disimpan
+        folder_path = 'Recomendation/Kain'  # Path folder tempat gambar kaleng disimpan
 
     #mengembalikan response
     return answer, description, folder_path
@@ -90,7 +91,8 @@ def kain():
     blobs = bucket.list_blobs(prefix=folder_path)
     file_urls = []
     for blob in blobs:
-        file_url = f"https://storage.googleapis.com/{bucket_name}/{blob.name}"
+        #menggunakan urlib parse module untuk parsing url agar bisa diakses
+        file_url = f"https://storage.googleapis.com/{bucket.name}/{quote(blob.name)}"
         file_urls.append(file_url)
     if len(file_urls) > 0:
         return jsonify({'answer': answer, 'description': description, 'file_urls': file_urls}), 200
