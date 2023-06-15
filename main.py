@@ -10,14 +10,10 @@ from prediction.plastik import klasifikasiPlastik, plastik
 #inisialisasi flask
 app = Flask(__name__)
 
-#inisialisasi klien penyimpanan Google Cloud
-#service_account = '...json'
-#client = storage.Client.from_service_account_json(service_account)
-
 #endpoint index/homepage
 @app.route('/', methods=["GET"])
 def index():
-    return '<h1> <center> Welcome to T2T API Homepage : --port 4000, </center> </h1> (10th deployed).'
+    return '<h1> <center> Welcome to T2T API Homepage : --port 4000, </center> </h1> (this 16th deploying attemp).'
 
 #membuat endpoint untuk masing masing file prediksi machine learning
 @app.route('/kaca', methods=['POST'])
