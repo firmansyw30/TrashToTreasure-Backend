@@ -1,14 +1,16 @@
 from google.cloud import storage
 import os
+import io
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import tensorflow as tf
 import tempfile
 from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
+from PIL import Image
 
 # Inisialisasi klien penyimpanan Google Cloud
-service_account = 'artful-guru-386801-9390336d684c.json'
+service_account = 'credential/artful-guru-386801-9390336d684c.json'
 client = storage.Client.from_service_account_json(service_account)
 
 # Inisialisasi flask
@@ -77,7 +79,7 @@ def klasifikasiPlastik(image_path):
         \tdapat menyebabkan pencemaran tanah dan air.\n
         \tDengan mengadopsi alternatif yang lebih ramah lingkungan dan mengelola sendok plastik dengan benar, kita dapat mengurangi dampak negatifnya 
         \tterhadap lingkungan dan menjaga keberlanjutan sumber daya alam kita.\n'''
-        folder_path = 't2t-bucket/Recomendation/Plastik/Sendok'  # Path folder tempat gambar sendok disimpan
+        folder_path = 'Recomendation/Plastik/Sendok'  # Path folder tempat gambar sendok disimpan
 
     #mengembalikan response
     return answer, description, folder_path
@@ -91,54 +93,26 @@ def plastik():
 
     #meminta request gambar ke body dengan method form data nantinya di postman
     image = request.files['image']
-    # Mendefinisikan path folder 'uploaded-img'
-    uploaded_img_folder = 'content/plastik'
-
-    # Membuat folder 'uploaded-img' jika belum ada
-    if not os.path.exists(uploaded_img_folder):
-        os.makedirs(uploaded_img_folder)
-
-    # Simpan gambar ke folder lokal dengan nama sementara
-    temp_image_path = os.path.join(uploaded_img_folder, secure_filename(image.filename))
-    image.save(temp_image_path)
-    
-    # Simpan gambar ke Google Cloud Storage
-    bucket = client.get_bucket(bucket_name)
-    image_path = 'uploaded-img/plastik/' + image.filename
-    blob = bucket.blob(image_path)
-    blob.upload_from_filename(temp_image_path)
-    # Hapus gambar sementara dari folder lokal
-    os.remove(temp_image_path)
-    # Dapatkan URL file gambar di Google Cloud Storage
-    image_uri = f"gs://{bucket_name}/{image_path}"
-
-    # Klasifikasikan gambar, berikan deskripsi dan rekomendasi
-    answer, description, folder_path = klasifikasiPlastik(image_uri)
-    # Hapus file gambar sementara
-    image.close()
-    blob.delete()
-    
-    #hapus file gambar sementara
-    #os.remove(temp_image_path)
-    #remove model setelah digunakan
-    #os.remove(model_plastik_path_local)
+    # Save the uploaded image to a temporary file
+    temp_file = tempfile.NamedTemporaryFile(delete=False)
+    image.save(temp_file.name)
+    #klasifikasi
+    answer, description, folder_path = klasifikasiPlastik(temp_file.name)
+    os.remove(temp_file.name)
     # Dapatkan objek bucket
     bucket = client.get_bucket(bucket_name)
     # Dapatkan daftar file dalam folder
-    files = bucket.list_blobs(prefix=folder_path)
+    blobs = bucket.list_blobs(prefix=folder_path)
 
     #tampilkan gambar yang sesuai dengan klasifikasi
-    if folder_path:
-        file_list = os.listdir(folder_path)
-        if len(file_list) > 0:
-            num_images = len(file_list)
-            #menampilkan masing-masing file gambar yang ada digoogle cloud storage folder
-            file_urls = []
-            for file in files:
-                file_urls.append(f"gs://{bucket_name}/{file.name}")
-            return jsonify({'answer': answer, 'description': description, 'file_urls': file_urls}), 200
-        else:
-            return jsonify({'answer': answer, 'description': description, 'file_urls': []}), 200
+    file_urls = []
+    for blob in blobs:
+        file_url = f"https://storage.googleapis.com/{bucket_name}/{blob.name}"
+        file_urls.append(file_url)
+    if len(file_urls) > 0:
+        return jsonify({'answer': answer, 'description': description, 'file_urls': file_urls}), 200
     else:
-        return jsonify({'error': 'No folder found for the classification'}), 500
+        return jsonify({'answer': answer, 'description': description, 'file_urls': []}), 200
+
+    return jsonify({'error': 'No folder found for the classification'}), 500
 

@@ -17,7 +17,7 @@ app = Flask(__name__)
 #endpoint index/homepage
 @app.route('/', methods=["GET"])
 def index():
-    return '<h1> <center> Welcome to T2T API Homepage, port 4000 </center> </h1>'
+    return '<h1> <center> Welcome to T2T API Homepage : --port 4000, </center> </h1> (10th deployed).'
 
 #membuat endpoint untuk masing masing file prediksi machine learning
 @app.route('/kaca', methods=['POST'])

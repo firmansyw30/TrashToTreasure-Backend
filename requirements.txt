@@ -3,5 +3,6 @@ matplotlib
 tensorflow
 google-cloud-storage
 gunicorn
+Pillow
 
 #jalankan dengan perintah "pip install -r requirements.txt"
