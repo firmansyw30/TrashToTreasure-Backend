@@ -8,6 +8,7 @@ import tensorflow as tf
 from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
 from PIL import Image
+from urllib.parse import quote
 
 # Inisialisasi klien penyimpanan Google Cloud
 service_account = 'credential/artful-guru-386801-9390336d684c.json'
@@ -87,7 +88,8 @@ def kaca():
     #tampilkan gambar yang sesuai dengan klasifikasi
     file_urls = []
     for blob in blobs:
-        file_url = f"https://storage.googleapis.com/{bucket_name}/{blob.name}"
+        #menggunakan urlib parse module untuk parsing url agar bisa diakses
+        file_url = f"https://storage.googleapis.com/{bucket.name}/{quote(blob.name)}"
         file_urls.append(file_url)
     if len(file_urls) > 0:
         return jsonify({'answer': answer, 'description': description, 'file_urls': file_urls}), 200
