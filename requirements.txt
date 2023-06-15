@@ -1,8 +1,9 @@
-flask
-matplotlib
-tensorflow
-google-cloud-storage
-gunicorn
-Pillow
+flask #package utama untuk pemrosesan backend
+matplotlib #untuk pemrosesan machine learning juga
+tensorflow #untuk pemrosesan machine learning
+google-cloud-storage #untuk kebutuhan cloud storage
+gunicorn #untuk pemrosesan server
+Pillow #untuk pemrosesan gambar
+urllib3 #untuk parsing url
 
 #jalankan dengan perintah "pip install -r requirements.txt"
