@@ -1,6 +1,6 @@
 ﻿#Trash to Treasure ML API
-<h3> Link Dokumentasi API (Masih dalam pengembangan </h3>
-<a href=""> Link Dokumentasi </a>
+<h3> Link Dokumentasi API (Masih dalam pengembangan) </h3>
+<a href="https://documenter.getpostman.com/view/20981294/2s93sf1VrG"> Link Dokumentasi </a>
  
 <br> 
 <h2> Developed by : </h2> 
