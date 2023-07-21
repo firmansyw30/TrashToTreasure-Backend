@@ -137,3 +137,6 @@ If you have any feedback or critism, please reach out to firmansyahwicaksono30@g
 Student ID : 
 c220dsx2706@bangkit.academy - Firmansyah Wicaksono - CC 43
 
+## Evaluation
+
+- The Machine Learning Code not adding validation object, like if we scan the bottle image on glass category the Machine Learning Code will detect it as a glass not a bottle
